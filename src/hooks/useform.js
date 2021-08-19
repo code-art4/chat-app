@@ -18,10 +18,17 @@ const useForm = (input) => {
         errorHandler();
     }
 
+    const changeHandler = () => {
+      if (input.current.value !== "") {
+        setHasError(false);
+      }
+    }
+
   return {
     hasError,
     errorHandler,
-    blurHandler
+    blurHandler,
+    changeHandler
   };
 };
 

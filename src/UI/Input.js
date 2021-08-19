@@ -24,6 +24,7 @@ const Input = React.forwardRef((props, ref) => {
           ref={ref}
           className={`${classVal} ${fileInputType}`}
           onBlur={props.onBlur}
+          onChange={props.onChange}
         />
         {props.error && (
           <p className={fileInputError}>{props.errorMessage}</p>

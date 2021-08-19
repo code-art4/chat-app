@@ -1,6 +1,6 @@
 import React,{useRef} from 'react';
 import Input from "../../UI/Input";
-import useForm from "../../hooks/useform";
+import useForm from "../../hooks/useForm";
 
 //CSS import 
 import classes from './signUpForm.module.css';
@@ -22,36 +22,42 @@ const SignUpForm = (props) => {
     hasError: imageHasError,
     errorHandler: imageErrorHandler,
     blurHandler: imageBlurHandler,
+    changeHandler: imageChangeHandler
   } = useForm(imageRef);
 
   const {
     hasError: fullNameHasError,
     errorHandler: fullNameErrorHandler,
     blurHandler: fullNameBlurHandler,
+    changeHandler: fullNameChangeHandler
   } = useForm(fullNameRef);
 
   const {
     hasError: passwordHasError,
     errorHandler: passwordErrorHandler,
     blurHandler: passwordBlurHandler,
+    changeHandler: passwordChangeHandler,
   } = useForm(passwordRef);
 
   const {
     hasError: userNameHasError,
     errorHandler: userNameErrorHandler,
     blurHandler: userNameBlurHandler,
+    changeHandler: userNameChangeHandler,
   } = useForm(userNameRef);
 
   const {
     hasError: dateOfBirthHasError,
     errorHandler: dateOfBirthErrorHandler,
     blurHandler: dateOfBirthBlurHandler,
+    changeHandler: dateOfBirthChangeHandler,
   } = useForm(dateOfBirthRef);
 
   const {
     hasError: confirmPasswordHasError,
     errorHandler: confirmPasswordErrorHandler,
     blurHandler: confirmPasswordBlurHandler,
+    changeHandler: confirmPasswordChangeHandler,
   } = useForm(confirmPasswordRef);
 
 
@@ -86,6 +92,7 @@ const SignUpForm = (props) => {
       error: imageHasError,
       onBlur: imageBlurHandler,
       errorMessage: imageErrorMessage,
+      onChange: imageChangeHandler
     },
     {
       type: "text",
@@ -95,6 +102,7 @@ const SignUpForm = (props) => {
       error: fullNameHasError,
       onBlur: fullNameBlurHandler,
       errorMessage: fullNameErrorMessage,
+      onChange: fullNameChangeHandler
     },
     {
       type: "text",
@@ -104,6 +112,7 @@ const SignUpForm = (props) => {
       error: userNameHasError,
       onBlur: userNameBlurHandler,
       errorMessage: userNameErrorMessage,
+      onChange: userNameChangeHandler
     },
     {
       type: "date",
@@ -113,6 +122,7 @@ const SignUpForm = (props) => {
       error: dateOfBirthHasError,
       onBlur: dateOfBirthBlurHandler,
       errorMessage: dateOfBirthErrorMessage,
+      onChange: dateOfBirthChangeHandler
     },
     {
       type: "password",
@@ -122,6 +132,7 @@ const SignUpForm = (props) => {
       error: passwordHasError,
       onBlur: passwordBlurHandler,
       errorMessage: passwordErrorMessage,
+      onChange: passwordChangeHandler
     },
     {
       type: "password",
@@ -130,7 +141,8 @@ const SignUpForm = (props) => {
       ref: confirmPasswordRef,
       error: confirmPasswordHasError,
       onBlur: confirmPasswordBlurHandler,
-      errorMessage: confirmPasswordErrorMessage
+      errorMessage: confirmPasswordErrorMessage,
+      onChange: confirmPasswordChangeHandler
     },
   ];
 
@@ -148,6 +160,7 @@ const SignUpForm = (props) => {
         errorMessage={input.errorMessage}
         labelClasses={input.labelClasses}
         onBlur={input.onBlur}
+        onChange={input.onChange}
       />
     );
   });

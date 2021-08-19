@@ -1,6 +1,8 @@
-import React,{useRef, useState, useCallback, useEffect} from 'react';
+import React,{useRef, useState, useCallback, useEffect, useContext} from 'react';
 import SignUpForm from './signUpForm';
-import useForm from '../../hooks/useform';
+import useForm from '../../hooks/useForm';
+import { logInContext } from '../../authContext/authContext';
+import useFetch from '../../hooks/usefetch';
 
 import Input from '../../UI/Input';
 
@@ -8,8 +10,13 @@ import classes from './loginForm.module.css';
 
 
 const LoginForm = () => {
-  const [formIsValid, setFormIsValid] = useState("");
-  const [hasAccount, setHasAccount] = useState(false);
+
+  let {logIn} = useContext(logInContext);
+  
+  const [formIsValid, setFormIsValid] = useState(false);
+  const [hasAccount, setHasAccount] = useState(true);
+  const [formErrorMessage, setformErrorMessage] = useState("");
+  const [user, setUser] = useState("");
 
   //inputs values
   const usernameRef = useRef();
@@ -19,13 +26,15 @@ const LoginForm = () => {
   const { 
     hasError: userHasError,
     errorHandler: userNameErrorHandler,
-    blurHandler: userNameBlurHandler
+    blurHandler: userNameBlurHandler,
+    changeHandler: userChangeHandler
   } = useForm(usernameRef);
 
   const {
     hasError: passwordHasError,
     errorHandler: passwordErrorHandler,
     blurHandler: passwordBlurHandler,
+    changeHandler: passwordChangeHandler,
   } = useForm(passwordRef);
 
   //error message
@@ -42,6 +51,7 @@ const LoginForm = () => {
       error: userHasError,
       errorMessage: userNameError,
       onBlur: userNameBlurHandler,
+      onChange: userChangeHandler,
     },
     {
       type: "password",
@@ -51,6 +61,7 @@ const LoginForm = () => {
       error: passwordHasError,
       errorMessage: passwordError,
       onBlur: passwordBlurHandler,
+      onChange: passwordChangeHandler,
     },
   ];
 
@@ -62,6 +73,51 @@ const LoginForm = () => {
       passwordHasError !== "";
       setFormIsValid(formHasError);
   },[passwordHasError, userHasError])
+  
+
+
+
+  //NOT WORKING
+  //fetch data
+  const onFetch = async() => {
+    const response = await fetch(
+      "https://chat-app-ab30b-default-rtdb.firebaseio.com/user.json"
+    );
+
+    const data = await response.json();
+    
+    const loadedUsers = [];
+    for (const key in data) {
+      loadedUsers.push({
+        name: data[key].name,
+        password: data[key].password
+      })
+    }
+    if(loadedUsers.length > 0){      
+      setUser(loadedUsers)
+    }
+  }
+  
+  useEffect(() => {
+    onFetch();    
+  },[])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   //Submit form
   const onSubmitHandler = useCallback(
@@ -69,6 +125,9 @@ const LoginForm = () => {
       e.preventDefault();
       userNameErrorHandler();
       passwordErrorHandler();
+      // if(user.userName === usernameRef && user.password === passwordRef){
+      //     console.log("Correct");  
+      // }
     },
     [userNameErrorHandler, passwordErrorHandler]
   );
@@ -86,13 +145,30 @@ const LoginForm = () => {
         error={input.error}
         errorMessage={input.errorMessage}
         onBlur={input.onBlur}
+        onChange={input.onChange}
       />
     );
   });
 
-  const onCreateAccount = () => {
-    setHasAccount(true);
+
+  const onCreateAccount = () => {    
+    setHasAccount(false);
   }
+
+  
+
+  //Make error on Invalid Input on Form Submit but didn't find user
+  const onLogIn = () => {
+    const username = usernameRef.current.value;
+    user.map((elmt) => {
+      return elmt.name === username && elmt.password === passwordRef.current.value && setHasAccount(true);
+    })
+  }
+  
+  useEffect(()=>{
+    console.log(hasAccount);
+  },[hasAccount])
+
 
   const signUpMessage = (
     <p className={classes.signUp}>
@@ -104,14 +180,15 @@ const LoginForm = () => {
   //JSX
   return (
     <React.Fragment>
-      {!hasAccount && (
+      {hasAccount && (
         <form onSubmit={onSubmitHandler} className={classes.Form}>
           {inputArr}
-          <button className={classes.btn}>Login</button>
+          <button className={classes.btn} onClick={onLogIn}>Login</button>
           {signUpMessage}
+          {formIsValid && formErrorMessage}
         </form>
       )}
-      {hasAccount && <SignUpForm className={classes.Form} btnClass ={classes.btn}/>}
+       {!hasAccount && <SignUpForm className={classes.Form} btnClass ={classes.btn}/>}
     </React.Fragment>
   );
 };

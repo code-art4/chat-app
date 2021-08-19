@@ -29,6 +29,24 @@
     border: 1px solid #0000ffc2;
 }
 
+.btn:disabled {
+    margin-top: 3rem;
+    align-self: center;
+    padding: .7rem 1.5rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: #0000ff1a;
+    font-size: 1rem;
+    color: #eee;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: none;
+    color: #0000ff27;
+    border: 1px solid #0000ff1c;
+}
+
 .errorMessage {
     color: red;
     font-size: .9rem;

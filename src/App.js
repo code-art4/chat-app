@@ -1,12 +1,15 @@
 import LoginForm from './components/Form/loginForm';
+import { AuthContextProvider } from './authContext/authContext';
 import './App.css';
 
 
 function App() {
   return (
-    <div className='App dark'>
-      <LoginForm/>
-    </div>
+    <AuthContextProvider>
+      <div className="App dark">
+        <LoginForm />
+      </div>
+    </AuthContextProvider>
   );
 }
 
