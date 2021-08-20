@@ -29,6 +29,7 @@ const Input = React.forwardRef((props, ref) => {
         {props.error && (
           <p className={fileInputError}>{props.errorMessage}</p>
         )}
+        {props.extraError && <p className={fileInputError}>{props.extraErrorMessage}</p>}
       </div>
     );
 }

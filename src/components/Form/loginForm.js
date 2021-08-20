@@ -1,6 +1,7 @@
-import React,{useRef, useState, useCallback, useEffect} from 'react';
+import React,{useRef, useState, useCallback, useEffect, useContext} from 'react';
 import SignUpForm from './signUpForm';
 import useForm from '../../hooks/useForm';
+import AuthContext from '../../authContext/authContext';
 
 import Input from '../../UI/Input';
 
@@ -8,6 +9,10 @@ import classes from './loginForm.module.css';
 
 
 const LoginForm = () => {
+  const {logIn} = useContext(AuthContext);
+  console.log(logIn);
+
+  //Different States
   const [formIsValid, setFormIsValid] = useState(false);
   const [hasAccount, setHasAccount] = useState(true);
   const [formErrorMessage, setformErrorMessage] = useState("");
@@ -207,7 +212,7 @@ const LoginForm = () => {
           {!isLoggedIn && formHasError && (
             <p className={classes.errorMessage}>{formErrorMessage}</p>
           )}
-          {!isOnline && <p className={classes.errorMessage}>No internet connection, please try again</p>}
+          {!isOnline && <p className={classes.errorMessage}>Got error while connecting to the server</p>}
           {signUpMessage}
           {formIsValid && formErrorMessage}
         </form>

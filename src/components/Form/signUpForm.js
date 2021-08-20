@@ -12,6 +12,8 @@ import Placeholder from '../../assets/images/Profile placeholder.jpg';
 //
 const SignUpForm = (props) => {
   const [user, setUser] = useState("");
+  const [passwordsHasError, setPasswordsHasError] = useState();
+  const [passwordsErrorMessage, setPasswordErrorMessage] = useState();
   //  inputs values by using refs for profile picture, full name, password, username, date of birth, confirm Password, email Address
   const imageRef = useRef();
   const fullNameRef = useRef();
@@ -71,16 +73,18 @@ const SignUpForm = (props) => {
     changeHandler: confirmPasswordChangeHandler,
   } = useForm(confirmPasswordRef);
 
-
+  const [passwordIsSame, setPasswordIsSame] = useState('');
+  
   //  error messages for when hasError = true
   const imageErrorMessage =
-    "Something is wrong with that image, Please try another!!";
+  "Choose an Image";
   const passwordErrorMessage = "Incorrect password";
-  const confirmPasswordErrorMessage = "Incorrect password";
   const fullNameErrorMessage = "Incorrect full Name";
   const dateOfBirthErrorMessage = "Incorrect date of birth";
   const userNameErrorMessage = "Incorrect username";
   const emailAddressErrorMessage = "Incorrect email";
+  const confirmPasswordErrorMessage =
+    "Password doesn't match the previous password";
 
 
   //  Input Array to fill in the custom component <Input/>
@@ -156,6 +160,8 @@ const SignUpForm = (props) => {
       onBlur: passwordBlurHandler,
       errorMessage: passwordErrorMessage,
       onChange: passwordChangeHandler,
+      extraError: passwordsHasError,
+      extraErrorMessage: passwordsErrorMessage,
     },
 
     {
@@ -167,13 +173,10 @@ const SignUpForm = (props) => {
       onBlur: confirmPasswordBlurHandler,
       errorMessage: confirmPasswordErrorMessage,
       onChange: confirmPasswordChangeHandler,
+      extraError: passwordsHasError,
+      extraErrorMessage: passwordsErrorMessage,
     },
   ];
-
-  //Checking to see if the email HasError
-  useEffect(() => {
-    console.log(emailAddressHasError);
-  }, [emailAddressHasError]);
 
   //mapping of input Array into the custom component <Input/>
   const inputArr = inputArray.map((input) => {
@@ -190,6 +193,8 @@ const SignUpForm = (props) => {
         labelClasses={input.labelClasses}
         onBlur={input.onBlur}
         onChange={input.onChange}
+        extraError={input.extraError}
+        extraErrorMessage={input.extraErrorMessage}
       />
     );
   });
@@ -206,7 +211,6 @@ const SignUpForm = (props) => {
     );
 
     const data = await response.json();
-    console.log(data);
   };
 
   //Signing up in the website by creating account
@@ -220,22 +224,37 @@ const SignUpForm = (props) => {
     dateOfBirthErrorHandler();
     confirmPasswordErrorHandler();
     
+    const newPassword =
+      passwordRef.current.value &&
+      confirmPasswordRef.current.value;
+
+      if(passwordRef.current.value ===
+      confirmPasswordRef.current.value){
+        setPasswordIsSame(true);
+      }else{
+        setPasswordIsSame(false);
+      }
+
+      if (!passwordIsSame) {
+        setPasswordsHasError(true);
+      } else {
+        setPasswordsHasError(false);
+      }
+      
+      if (passwordsHasError) {
+        setPasswordErrorMessage("The passwords do not match");
+      }
+
     //Create Account in database
-    if(imageRef.current.value && fullNameRef.current.value && passwordRef.current.value && userNameRef.current.value && dateOfBirthRef.current.value && confirmPasswordRef.current.value && emailAddressRef.current.value){
+    if(imageRef.current.value && fullNameRef.current.value && userNameRef.current.value && dateOfBirthRef.current.value && newPassword && emailAddressRef.current.value){
       onFetch();
       props.hasAccount();
     }
-
-    console.log(
-      imageRef.current.value,
-      fullNameRef.current.value,
-      passwordRef.current.value,
-      userNameRef.current.value,
-      dateOfBirthRef.current.value,
-      confirmPasswordRef.current.value,
-      emailAddressRef.current.value
-    );
   };
+
+  useEffect(() => {
+
+  }, [passwordIsSame, passwordsHasError]);
 
   //JSX files
   return (
