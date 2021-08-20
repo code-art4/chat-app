@@ -2,7 +2,6 @@ import React,{useRef, useState, useCallback, useEffect, useContext} from 'react'
 import SignUpForm from './signUpForm';
 import useForm from '../../hooks/useForm';
 import { logInContext } from '../../authContext/authContext';
-import useFetch from '../../hooks/usefetch';
 
 import Input from '../../UI/Input';
 
@@ -10,13 +9,13 @@ import classes from './loginForm.module.css';
 
 
 const LoginForm = () => {
-
   let {logIn} = useContext(logInContext);
   
   const [formIsValid, setFormIsValid] = useState(false);
   const [hasAccount, setHasAccount] = useState(true);
   const [formErrorMessage, setformErrorMessage] = useState("");
   const [user, setUser] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   //inputs values
   const usernameRef = useRef();
@@ -75,9 +74,6 @@ const LoginForm = () => {
   },[passwordHasError, userHasError])
   
 
-
-
-  //NOT WORKING
   //fetch data
   const onFetch = async() => {
     const response = await fetch(
@@ -85,17 +81,20 @@ const LoginForm = () => {
     );
 
     const data = await response.json();
+
+    console.log(data);
     
     const loadedUsers = [];
     for (const key in data) {
       loadedUsers.push({
-        name: data[key].name,
+        name: data[key].username,
         password: data[key].password
       })
     }
     if(loadedUsers.length > 0){      
       setUser(loadedUsers)
     }
+    console.log(loadedUsers);
   }
   
   useEffect(() => {
@@ -125,6 +124,7 @@ const LoginForm = () => {
       e.preventDefault();
       userNameErrorHandler();
       passwordErrorHandler();
+      onFetch();
       // if(user.userName === usernameRef && user.password === passwordRef){
       //     console.log("Correct");  
       // }
@@ -160,9 +160,13 @@ const LoginForm = () => {
   //Make error on Invalid Input on Form Submit but didn't find user
   const onLogIn = () => {
     const username = usernameRef.current.value;
-    user.map((elmt) => {
-      return elmt.name === username && elmt.password === passwordRef.current.value && setHasAccount(true);
-    })
+    onFetch();    
+    for (let i = 0; i < user.length; i++) {
+     if(user[i].name === username && user[i].password === passwordRef.current.value){
+       setHasAccount(true); 
+       setIsLoggedIn(true);       
+     }
+    }
   }
   
   useEffect(()=>{
@@ -177,10 +181,17 @@ const LoginForm = () => {
   );
 
 
+  //for Signup form
+  const madeAccount = () => {
+    setHasAccount(true);
+    setIsLoggedIn(true);
+  }
+
+
   //JSX
   return (
     <React.Fragment>
-      {hasAccount && (
+      {hasAccount && !isLoggedIn && (
         <form onSubmit={onSubmitHandler} className={classes.Form}>
           {inputArr}
           <button className={classes.btn} onClick={onLogIn}>Login</button>
@@ -188,7 +199,10 @@ const LoginForm = () => {
           {formIsValid && formErrorMessage}
         </form>
       )}
-       {!hasAccount && <SignUpForm className={classes.Form} btnClass ={classes.btn}/>}
+
+      {hasAccount && isLoggedIn && <h2>You have been logged in</h2>}
+
+       {!hasAccount && !isLoggedIn && <SignUpForm className={classes.Form} btnClass ={classes.btn} hasAccount={madeAccount}/>}
     </React.Fragment>
   );
 };

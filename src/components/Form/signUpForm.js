@@ -1,35 +1,48 @@
-import React,{useRef} from 'react';
+import React,{useRef, useEffect, useState} from 'react';
 import Input from "../../UI/Input";
 import useForm from "../../hooks/useForm";
-
-//CSS import 
+//  CSS import 
 import classes from './signUpForm.module.css';
-
-//IMAGE import
+//  IMAGE import
 import Placeholder from '../../assets/images/Profile placeholder.jpg';
 
+
+
+
+
+
+//
 const SignUpForm = (props) => {
-  //inputs values
+  const [user, setUser] = useState("");
+  //  inputs values by using refs for profile picture, full name, password, username, date of birth, confirm Password, email Address
   const imageRef = useRef();
   const fullNameRef = useRef();
   const passwordRef = useRef();
   const userNameRef = useRef();
   const dateOfBirthRef = useRef();
   const confirmPasswordRef = useRef();
+  const emailAddressRef = useRef();
 
-  //useForm custom hook
+  //  useForm custom hook and destructuring the custom hook to bring out the hasError, errorHandler function, blurHandler function, changeHandler function for the form
   const {
     hasError: imageHasError,
     errorHandler: imageErrorHandler,
     blurHandler: imageBlurHandler,
-    changeHandler: imageChangeHandler
+    changeHandler: imageChangeHandler,
   } = useForm(imageRef);
+
+  const {
+    hasError: emailAddressHasError,
+    errorHandler: emailAddressErrorHandler,
+    blurHandler: emailAddressBlurHandler,
+    changeHandler: emailAddressChangeHandler,
+  } = useForm(emailAddressRef);
 
   const {
     hasError: fullNameHasError,
     errorHandler: fullNameErrorHandler,
     blurHandler: fullNameBlurHandler,
-    changeHandler: fullNameChangeHandler
+    changeHandler: fullNameChangeHandler,
   } = useForm(fullNameRef);
 
   const {
@@ -61,16 +74,18 @@ const SignUpForm = (props) => {
   } = useForm(confirmPasswordRef);
 
 
-  //error message
-  const imageErrorMessage = "Something is wrong with that image, Please try another!!";
+  //  error messages for when hasError = true
+  const imageErrorMessage =
+    "Something is wrong with that image, Please try another!!";
   const passwordErrorMessage = "Incorrect password";
   const confirmPasswordErrorMessage = "Incorrect password";
   const fullNameErrorMessage = "Incorrect full Name";
   const dateOfBirthErrorMessage = "Incorrect date of birth";
   const userNameErrorMessage = "Incorrect username";
+  const emailAddressErrorMessage = "Incorrect email";
 
 
-  //Inputs
+  //  Input Array to fill in the custom component <Input/>
   const inputArray = [
     {
       type: "file",
@@ -92,7 +107,7 @@ const SignUpForm = (props) => {
       error: imageHasError,
       onBlur: imageBlurHandler,
       errorMessage: imageErrorMessage,
-      onChange: imageChangeHandler
+      onChange: imageChangeHandler,
     },
     {
       type: "text",
@@ -102,7 +117,7 @@ const SignUpForm = (props) => {
       error: fullNameHasError,
       onBlur: fullNameBlurHandler,
       errorMessage: fullNameErrorMessage,
-      onChange: fullNameChangeHandler
+      onChange: fullNameChangeHandler,
     },
     {
       type: "text",
@@ -112,7 +127,17 @@ const SignUpForm = (props) => {
       error: userNameHasError,
       onBlur: userNameBlurHandler,
       errorMessage: userNameErrorMessage,
-      onChange: userNameChangeHandler
+      onChange: userNameChangeHandler,
+    },
+    {
+      type: "email",
+      placeholder: "Enter Email",
+      label: { id: "email", name: "Email Address" },
+      ref: emailAddressRef,
+      error: emailAddressHasError,
+      onBlur: emailAddressBlurHandler,
+      errorMessage: emailAddressErrorMessage,
+      onChange: emailAddressChangeHandler,
     },
     {
       type: "date",
@@ -122,7 +147,7 @@ const SignUpForm = (props) => {
       error: dateOfBirthHasError,
       onBlur: dateOfBirthBlurHandler,
       errorMessage: dateOfBirthErrorMessage,
-      onChange: dateOfBirthChangeHandler
+      onChange: dateOfBirthChangeHandler,
     },
     {
       type: "password",
@@ -132,8 +157,9 @@ const SignUpForm = (props) => {
       error: passwordHasError,
       onBlur: passwordBlurHandler,
       errorMessage: passwordErrorMessage,
-      onChange: passwordChangeHandler
+      onChange: passwordChangeHandler,
     },
+
     {
       type: "password",
       placeholder: "Confirm Password",
@@ -142,11 +168,16 @@ const SignUpForm = (props) => {
       error: confirmPasswordHasError,
       onBlur: confirmPasswordBlurHandler,
       errorMessage: confirmPasswordErrorMessage,
-      onChange: confirmPasswordChangeHandler
+      onChange: confirmPasswordChangeHandler,
     },
   ];
 
-  //mapping of inputs
+  //Checking to see if the email HasError
+  useEffect(() => {
+    console.log(emailAddressHasError);
+  }, [emailAddressHasError]);
+
+  //mapping of input Array into the custom component <Input/>
   const inputArr = inputArray.map((input) => {
     return (
       <Input
@@ -165,14 +196,36 @@ const SignUpForm = (props) => {
     );
   });
 
+  
+  //fetch data
+  const onFetch = async () => {
+    const formValues =  {image: imageRef.current.value, fullName:fullNameRef.current.value, password: passwordRef.current.value, username: userNameRef.current.value, dateOfBirth: dateOfBirthRef.current.value, confirmPassword: confirmPasswordRef.current.value, emailAddress: emailAddressRef.current.value};
+    const response = await fetch(
+      "https://chat-app-ab30b-default-rtdb.firebaseio.com/user.json",{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},        
+        body: JSON.stringify(formValues) 
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+  };
+
+  //Signing up in the website by creating account
   const onCreateAccount = (e) => {
     e.preventDefault();
     imageErrorHandler();
     fullNameErrorHandler();
+    emailAddressErrorHandler();
     passwordErrorHandler();
     userNameErrorHandler();
     dateOfBirthErrorHandler();
     confirmPasswordErrorHandler();
+    
+    //Create Account in database
+    onFetch();
+    props.hasAccount();
 
     console.log(
       imageRef.current.value,
@@ -180,10 +233,12 @@ const SignUpForm = (props) => {
       passwordRef.current.value,
       userNameRef.current.value,
       dateOfBirthRef.current.value,
-      confirmPasswordRef.current.value
+      confirmPasswordRef.current.value,
+      emailAddressRef.current.value
     );
   };
 
+  //JSX files
   return (
     <form
       onSubmit={onCreateAccount}
