@@ -9,8 +9,6 @@ import Placeholder from '../../assets/images/Profile placeholder.jpg';
 
 
 
-
-
 //
 const SignUpForm = (props) => {
   const [user, setUser] = useState("");
@@ -196,7 +194,6 @@ const SignUpForm = (props) => {
     );
   });
 
-  
   //fetch data
   const onFetch = async () => {
     const formValues =  {image: imageRef.current.value, fullName:fullNameRef.current.value, password: passwordRef.current.value, username: userNameRef.current.value, dateOfBirth: dateOfBirthRef.current.value, confirmPassword: confirmPasswordRef.current.value, emailAddress: emailAddressRef.current.value};
@@ -224,8 +221,10 @@ const SignUpForm = (props) => {
     confirmPasswordErrorHandler();
     
     //Create Account in database
-    onFetch();
-    props.hasAccount();
+    if(imageRef.current.value && fullNameRef.current.value && passwordRef.current.value && userNameRef.current.value && dateOfBirthRef.current.value && confirmPasswordRef.current.value && emailAddressRef.current.value){
+      onFetch();
+      props.hasAccount();
+    }
 
     console.log(
       imageRef.current.value,

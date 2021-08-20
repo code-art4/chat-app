@@ -1,7 +1,6 @@
-import React,{useRef, useState, useCallback, useEffect, useContext} from 'react';
+import React,{useRef, useState, useCallback, useEffect} from 'react';
 import SignUpForm from './signUpForm';
 import useForm from '../../hooks/useForm';
-import { logInContext } from '../../authContext/authContext';
 
 import Input from '../../UI/Input';
 
@@ -9,13 +8,15 @@ import classes from './loginForm.module.css';
 
 
 const LoginForm = () => {
-  let {logIn} = useContext(logInContext);
-  
   const [formIsValid, setFormIsValid] = useState(false);
   const [hasAccount, setHasAccount] = useState(true);
   const [formErrorMessage, setformErrorMessage] = useState("");
   const [user, setUser] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [formHasError, setFormHasError] = useState(false);
+
+  //We are assuming the user is online
+  const [isOnline, setIsOnline] = useState(true);
 
   //inputs values
   const usernameRef = useRef();
@@ -75,14 +76,14 @@ const LoginForm = () => {
   
 
   //fetch data
-  const onFetch = async() => {
-    const response = await fetch(
+  const onFetch = useCallback(async() => {
+    if(usernameRef.current.value !== "" && passwordRef.current.value !== ""){
+      const response = await fetch(
       "https://chat-app-ab30b-default-rtdb.firebaseio.com/user.json"
-    );
+    ).catch(setIsOnline(false));
 
     const data = await response.json();
 
-    console.log(data);
     
     const loadedUsers = [];
     for (const key in data) {
@@ -91,32 +92,15 @@ const LoginForm = () => {
         password: data[key].password
       })
     }
+
+
     if(loadedUsers.length > 0){      
-      setUser(loadedUsers)
+      setUser(loadedUsers);
+      setIsOnline(true);
     }
-    console.log(loadedUsers);
-  }
+    }
+  }, [])
   
-  useEffect(() => {
-    onFetch();    
-  },[])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   //Submit form
   const onSubmitHandler = useCallback(
@@ -129,7 +113,7 @@ const LoginForm = () => {
       //     console.log("Correct");  
       // }
     },
-    [userNameErrorHandler, passwordErrorHandler]
+    [userNameErrorHandler, passwordErrorHandler, onFetch]
   );
 
   //mapping of inputs
@@ -153,6 +137,7 @@ const LoginForm = () => {
 
   const onCreateAccount = () => {    
     setHasAccount(false);
+    setFormHasError(false);
   }
 
   
@@ -160,19 +145,29 @@ const LoginForm = () => {
   //Make error on Invalid Input on Form Submit but didn't find user
   const onLogIn = () => {
     const username = usernameRef.current.value;
+    const password = passwordRef.current.value;
     onFetch();    
+      
+    //loop through each user
     for (let i = 0; i < user.length; i++) {
-     if(user[i].name === username && user[i].password === passwordRef.current.value){
+     if(user[i].name === username && 
+        user[i].password === password
+      ) {
        setHasAccount(true); 
        setIsLoggedIn(true);       
+       setformErrorMessage("");
+     }
+
+     if (
+       user[i].name !== username &&
+       user[i].password !== passwordRef.current.value
+     ) {
+       setIsLoggedIn(false);
+       setFormHasError(true);
+       setformErrorMessage("Invalid username or password");
      }
     }
   }
-  
-  useEffect(()=>{
-    console.log(hasAccount);
-  },[hasAccount])
-
 
   const signUpMessage = (
     <p className={classes.signUp}>
@@ -188,21 +183,46 @@ const LoginForm = () => {
   }
 
 
+  //When login save login details to the browser
+  useEffect(()=>{
+    if(isLoggedIn){
+      localStorage.setItem("isLoggedIn", "true");
+    }
+  },[isLoggedIn])
+
+  useEffect(()=>{
+    const savedIsLoggedVal = localStorage.getItem("isLoggedIn");
+    setIsLoggedIn(savedIsLoggedVal);
+  },[])
+
   //JSX
   return (
     <React.Fragment>
       {hasAccount && !isLoggedIn && (
         <form onSubmit={onSubmitHandler} className={classes.Form}>
           {inputArr}
-          <button className={classes.btn} onClick={onLogIn}>Login</button>
+          <button className={classes.btn} onClick={onLogIn}>
+            Login
+          </button>
+          {!isLoggedIn && formHasError && (
+            <p className={classes.errorMessage}>{formErrorMessage}</p>
+          )}
+          {!isOnline && <p className={classes.errorMessage}>No internet connection, please try again</p>}
           {signUpMessage}
           {formIsValid && formErrorMessage}
         </form>
       )}
 
-      {hasAccount && isLoggedIn && <h2>You have been logged in</h2>}
 
-       {!hasAccount && !isLoggedIn && <SignUpForm className={classes.Form} btnClass ={classes.btn} hasAccount={madeAccount}/>}
+      {hasAccount && isLoggedIn && isOnline && <h2>You have been logged in</h2>}
+
+      {!hasAccount && !isLoggedIn && !formHasError && (
+        <SignUpForm
+          className={classes.Form}
+          btnClass={classes.btn}
+          hasAccount={madeAccount}
+        />
+      )}
     </React.Fragment>
   );
 };

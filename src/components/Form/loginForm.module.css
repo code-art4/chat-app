@@ -24,7 +24,7 @@
 }
 
 .btn:hover {
-    background: none;
+    background: #eee;
     color: #0000ffc2;
     border: 1px solid #0000ffc2;
 }
