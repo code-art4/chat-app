@@ -9,7 +9,9 @@ const Input = React.forwardRef((props, ref) => {
       props.type === "file"
         ? `${classes.errorMessage} ${classes.center}`
         : `${classes.errorMessage}`;
+        
     return (
+
       <div className={classes["form-control"]}>
         <label htmlFor={props.id} className={props.labelClasses}>
           {props.name}

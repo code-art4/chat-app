@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-router-dom": "^6.0.1",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.0.1"
   },
@@ -34,5 +35,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This is a chat-app with a public forum for everyone who owns an account. To own an account, a new user would have to sign up and complete all the inputs and submit to make an account",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ojo-Triumph/chat-app.git"
+  },
+  "keywords": [
+    "Chat"
+  ],
+  "author": "Triumph",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ojo-Triumph/chat-app/issues"
+  },
+  "homepage": "https://github.com/Ojo-Triumph/chat-app#readme"
 }

@@ -1,8 +1,11 @@
 import React,{useRef, useEffect, useState} from 'react';
+
 import Input from "../../UI/Input";
 import useForm from "../../hooks/useForm";
+
 //  CSS import 
 import classes from './signUpForm.module.css';
+
 //  IMAGE import
 import Placeholder from '../../assets/images/Profile placeholder.jpg';
 
